@@ -1,5 +1,5 @@
 import { Category } from "./category";
-import {validate as uuidvalidate} from 'uuid';
+import UniqueEntityId from "../../../@seedwork/domain/unique-entity-id.vo";
 
 
 describe("Category Tests", () => {
@@ -107,14 +107,14 @@ describe("Category Tests", () => {
   test('id field', () => {
     let category = new Category({name: 'Movie'});
     expect(category.id).not.toBeNull();
-    expect(uuidvalidate(category.id)).toBeTruthy();
+    expect(category.id).toBeInstanceOf(UniqueEntityId);
 
     category = new Category({name: 'Movie'}, undefined);
     expect(category.id).not.toBeNull();
-    expect(uuidvalidate(category.id)).toBeTruthy();
+    expect(category.id).toBeInstanceOf(UniqueEntityId);
 
-    category = new Category({name: 'Movie'}, '011a2da2-70e3-4a0a-b6fc-42e9ad976963');
+    category = new Category({name: 'Movie'}, new UniqueEntityId());
     expect(category.id).not.toBeNull();
-    expect(uuidvalidate(category.id)).toBeTruthy();
+    expect(category.id).toBeInstanceOf(UniqueEntityId);
   });
 });
