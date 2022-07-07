@@ -24,7 +24,11 @@
 
 	"settings": {
 		"terminal.integrated.defaultProfile.linux": "zsh"
-	}
+	},
+
+	"extensions": [
+		"firsttris.vscode-jest-runner"
+	],
 
 	// Uncomment the next line if you want start specific services in your Docker Compose config.
 	// "runServices": [],

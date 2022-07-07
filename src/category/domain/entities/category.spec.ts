@@ -1,5 +1,5 @@
 import { Category } from "./category";
-import UniqueEntityId from "../../../@seedwork/domain/unique-entity-id.vo";
+import UniqueEntityId from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
 
 
 describe("Category Tests", () => {
@@ -106,15 +106,42 @@ describe("Category Tests", () => {
 
   test('id field', () => {
     let category = new Category({name: 'Movie'});
-    expect(category.id).not.toBeNull();
-    expect(category.id).toBeInstanceOf(UniqueEntityId);
+    expect(category.uniqueEntityId).not.toBeNull();
+    expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
 
     category = new Category({name: 'Movie'}, undefined);
-    expect(category.id).not.toBeNull();
-    expect(category.id).toBeInstanceOf(UniqueEntityId);
+    expect(category.uniqueEntityId).not.toBeNull();
+    expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
 
     category = new Category({name: 'Movie'}, new UniqueEntityId());
-    expect(category.id).not.toBeNull();
-    expect(category.id).toBeInstanceOf(UniqueEntityId);
+    expect(category.uniqueEntityId).not.toBeNull();
+    expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
   });
+
+
+  it("should update a category", () => {
+    const category = new Category({ name: "Movie" });
+    category.update("Documentary", "some description");
+    expect(category.name).toBe("Documentary");
+    expect(category.description).toBe("some description");
+  });
+
+  it("should active a category", () => {
+    const category = new Category({
+      name: "Filmes",
+      is_active: false,
+    });
+    category.activate();
+    expect(category.is_active).toBeTruthy();
+  });
+
+  test("should disable a category", () => {
+    const category = new Category({
+      name: "Filmes",
+      is_active: true,
+    });
+    category.deactivate();
+    expect(category.is_active).toBeFalsy();
+  });
+
 });
