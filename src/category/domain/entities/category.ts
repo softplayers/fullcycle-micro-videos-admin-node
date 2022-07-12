@@ -11,7 +11,16 @@ export type CategoryProperties = {
 export class Category extends Entity<CategoryProperties> {
 
   constructor(public readonly props: CategoryProperties, id?: UniqueEntityId) {
+    if (!props.name) {
+      throw new Error('Name is required');
+    }
+
+    if (props.name.length > 255) {
+      throw new Error('Name must be less');
+    }
+
     super(props, id);
+
     this.description = this.props.description;
     this.props.is_active = this.props.is_active ?? true;
     this.props.created_at = this.props.created_at ?? new Date();
