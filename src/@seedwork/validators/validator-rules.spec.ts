@@ -1,35 +1,225 @@
 import ValidationError from "../errors/validation-error";
-import ValidatorRule from "./validator-rules";
+import ValidatorRules from "./validator-rules";
 
-describe('ValidatorRules Unit Tests', () => {
+type Values = {
+  value: any;
+  property: string;
+};
 
-    test('values method', () => {
-        const validator = ValidatorRule.values('some value', 'field');
+type ExpectedRule = {
+  value: any;
+  property: string;
+  rule: keyof ValidatorRules;
+  error: ValidationError;
+  params?: any[];
+};
 
-        expect(validator).toBeInstanceOf(ValidatorRule);
-        expect(validator['value']).toBe('some value');
-        expect(validator['property']).toBe('field');
+function assertIsInvalid(expected: ExpectedRule) {
+  expect(() => runRule(expected)).toThrow(expected.error);
+}
+
+function assertIsValid(expected: ExpectedRule) {
+  expect(() => runRule(expected)).not.toThrow(expected.error);
+}
+
+function runRule({
+  value,
+  property,
+  rule,
+  params = [],
+}: Omit<ExpectedRule, "error">) {
+  const validator = ValidatorRules.values(value, property);
+  const method = validator[rule];
+  method.apply(validator, params);
+}
+
+describe("ValidatorRules Unit Tests", () => {
+  test("values method", () => {
+    const validator = ValidatorRules.values("some value", "field");
+
+    expect(validator).toBeInstanceOf(ValidatorRules);
+    expect(validator["value"]).toBe("some value");
+    expect(validator["property"]).toBe("field");
+  });
+
+  test("required validation rule", () => {
+    const error = new ValidationError("The field is required");
+
+    // invalid cases
+    let arrange: Values[] = [
+      { value: null, property: "field" },
+      { value: undefined, property: "field" },
+      { value: "", property: "field" },
+    ];
+
+    arrange.forEach((item) => {
+      assertIsInvalid({
+        value: item.value,
+        property: item.property,
+        rule: "required",
+        error,
+      });
     });
 
-    test('required validation rule', () => {
-        let arrange: any[] = [
-            { value: null, property: 'field', messageError: 'The field is required' },
-            { value: undefined, property: 'field', messageError: 'The field is required' },
-            { value: "", property: 'field', messageError: 'The field is required' },
-        ];
+    // valid cases
+    arrange = [
+      { value: "teste", property: "field" },
+      { value: 0, property: "field" },
+      { value: false, property: "field" },
+    ];
 
-        arrange.forEach(item => {
-            expect(() => ValidatorRule.values(item.value, item.property).required()).toThrow(new ValidationError(item.messageError));
-        });
+    arrange.forEach((item) => {
+      assertIsValid({
+        value: item.value,
+        property: item.property,
+        rule: "required",
+        error,
+      });
+    });
+  });
 
-        arrange = [
-            { value: "teste", property: 'field', messageError: '' },
-            { value: 0, property: 'field', messageError: '' },
-            { value: false, property: 'field', messageError: '' },
-        ];
+  test("string validation rule", () => {
+    const error = new ValidationError("The field must be a string");
 
-        arrange.forEach(item => {
-            expect(() => ValidatorRule.values(item.value, item.property).required()).not.toThrow(new ValidationError(item.messageError));
-        });
-    })
+    // invalid cases
+    let arrange: Values[] = [
+      { value: 5, property: "field" },
+      { value: {}, property: "field" },
+      { value: false, property: "field" },
+    ];
+
+    arrange.forEach((item) => {
+      assertIsInvalid({
+        value: item.value,
+        property: item.property,
+        rule: "string",
+        error,
+      });
+    });
+
+    // valid cases
+    arrange = [
+      { value: null, property: "field" },
+      { value: undefined, property: "field" },
+      { value: "teste", property: "field" },
+    ];
+
+    arrange.forEach((item) => {
+      assertIsValid({
+        value: item.value,
+        property: item.property,
+        rule: "string",
+        error,
+      });
+    });
+  });
+
+  test("maxLength validation rule", () => {
+    const error = new ValidationError(
+      "The field must be less or equal than 5 characters"
+    );
+
+    // invalid cases
+    let arrange: Values[] = [{ value: "123456", property: "field" }];
+    arrange.forEach((item) => {
+      assertIsInvalid({
+        value: item.value,
+        property: item.property,
+        rule: "maxLength",
+        error,
+        params: [5],
+      });
+    });
+
+    // valid cases
+    arrange = [
+      { value: null, property: "field" },
+      { value: undefined, property: "field" },
+      { value: "12345", property: "field" },
+    ];
+
+    arrange.forEach((item) => {
+      assertIsValid({
+        value: item.value,
+        property: item.property,
+        rule: "maxLength",
+        error,
+        params: [5],
+      });
+    });
+  });
+
+  test("boolean validation rule", () => {
+    const error = new ValidationError("The field must be a boolean");
+
+    // invalid cases
+    let arrange: Values[] = [
+      { value: 123456, property: "field" },
+      { value: "true", property: "field" },
+      { value: "false", property: "field" },
+    ];
+
+    arrange.forEach((item) => {
+      assertIsInvalid({
+        value: item.value,
+        property: item.property,
+        rule: "boolean",
+        error,
+      });
+    });
+
+    // valid cases
+    arrange = [
+      { value: null, property: "field" },
+      { value: undefined, property: "field" },
+      { value: true, property: "field" },
+      { value: false, property: "field" },
+    ];
+
+    arrange.forEach((item) => {
+      assertIsValid({
+        value: item.value,
+        property: item.property,
+        rule: "boolean",
+        error,
+      });
+    });
+  });
+
+  it("should throw a validation error when combine two or more validation rules", () => {
+    let validator = ValidatorRules.values(null, "field");
+    expect(() => validator.required().string().maxLength(5)).toThrow(
+      new ValidationError("The field is required")
+    );
+
+    validator = ValidatorRules.values(5, "field");
+    expect(() => validator.required().string().maxLength(5)).toThrow(
+      new ValidationError("The field must be a string")
+    );
+
+    validator = ValidatorRules.values("132456", "field");
+    expect(() => validator.required().string().maxLength(5)).toThrow(
+      new ValidationError("The field must be less or equal than 5 characters")
+    );
+
+    validator = ValidatorRules.values(null, "field");
+    expect(() => validator.required().boolean()).toThrow(
+      new ValidationError("The field is required")
+    );
+
+    validator = ValidatorRules.values(5, "field");
+    expect(() => validator.required().boolean()).toThrow(
+      new ValidationError("The field must be a boolean")
+    );
+  });
+
+  it("should validate when combine two or more validation rules", () => {
+    expect.assertions(0);
+
+    ValidatorRules.values("teste", "field").required().string();
+    ValidatorRules.values("12345", "field").required().string().maxLength(5);
+
+    ValidatorRules.values(true, "field").required().boolean();
+    ValidatorRules.values(false, "field").required().boolean();
+  });
 });
