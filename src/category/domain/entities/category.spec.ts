@@ -3,6 +3,11 @@ import UniqueEntityId from "../../../@seedwork/domain/value-objects/unique-entit
 
 
 describe("Category Tests", () => {
+
+  beforeEach(() => {
+    Category.validate = jest.fn();
+  });
+
   test("Contructor of category", () => {
     // Arrange
     const now = new Date();
@@ -15,6 +20,7 @@ describe("Category Tests", () => {
 
     // Minimal constructor
     let category = new Category({ name: "Movie" });
+    expect(Category.validate).toHaveBeenCalled();
     expect(category.props).toMatchObject({
       name: "Movie",
       description: null,
@@ -64,7 +70,7 @@ describe("Category Tests", () => {
   });
 
   test('getter and setter of name field', () => {
-    const category = new Category({name: 'Movie'});
+    const category = new Category({ name: 'Movie' });
     expect(category.name).toBe('Movie')
 
     category['name'] = "other name"
@@ -72,51 +78,51 @@ describe("Category Tests", () => {
   });
 
   test('getter and setter of description field', () => {
-    let category = new Category({name: 'Movie'});
+    let category = new Category({ name: 'Movie' });
     expect(category.description).toBeNull();
 
-    category = new Category({name: 'Movie', description: 'some description'});
+    category = new Category({ name: 'Movie', description: 'some description' });
     expect(category.description).toBe('some description');
 
-    category = new Category({name: 'Movie'});
+    category = new Category({ name: 'Movie' });
     category['description'] = "some description"
     expect(category.description).toBe('some description');
 
-    category = new Category({name: 'Movie'});
+    category = new Category({ name: 'Movie' });
     category['description'] = undefined
     expect(category.description).toBeNull();
   });
 
   test('getter and setter of is_active field', () => {
-    let category = new Category({name: 'Movie'});
+    let category = new Category({ name: 'Movie' });
     expect(category.is_active).toBeTruthy();
 
-    category = new Category({name: 'Movie', is_active: false});
+    category = new Category({ name: 'Movie', is_active: false });
     expect(category.is_active).toBeFalsy();
 
-    category = new Category({name: 'Movie', is_active: true});
+    category = new Category({ name: 'Movie', is_active: true });
     expect(category.is_active).toBeTruthy();
   });
 
   test('getter of created_at field', () => {
-    let category = new Category({name: 'Movie'});
+    let category = new Category({ name: 'Movie' });
     expect(category.created_at).toBeInstanceOf(Date);
 
     const created_at = new Date();
-    category = new Category({name: 'Movie', created_at});
+    category = new Category({ name: 'Movie', created_at });
     expect(category.created_at).toBe(created_at);
   });
 
   test('id field', () => {
-    let category = new Category({name: 'Movie'});
+    let category = new Category({ name: 'Movie' });
     expect(category.uniqueEntityId).not.toBeNull();
     expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
 
-    category = new Category({name: 'Movie'}, undefined);
+    category = new Category({ name: 'Movie' }, undefined);
     expect(category.uniqueEntityId).not.toBeNull();
     expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
 
-    category = new Category({name: 'Movie'}, new UniqueEntityId());
+    category = new Category({ name: 'Movie' }, new UniqueEntityId());
     expect(category.uniqueEntityId).not.toBeNull();
     expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
   });
@@ -125,6 +131,7 @@ describe("Category Tests", () => {
   it("should update a category", () => {
     const category = new Category({ name: "Movie" });
     category.update("Documentary", "some description");
+    expect(Category.validate).toHaveBeenCalledTimes(2);
     expect(category.name).toBe("Documentary");
     expect(category.description).toBe("some description");
   });
