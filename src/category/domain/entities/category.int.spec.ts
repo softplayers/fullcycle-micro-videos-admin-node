@@ -1,8 +1,10 @@
-import ValidationError from "../../../@seedwork/errors/validation-error";
+// import ValidationError from "../../../@seedwork/domain/errors/validation-error";
+import { EntityValidationError } from "../../../@seedwork/domain/errors/validation-error";
 import { Category } from "./category";
 
 
 describe("Category Integration Tests", () => {
+
   describe("Create", () => {
     it("should be invalid when create", () => {
       expect(() => new Category({ name: null as any })).toThrow(new ValidationError('The name is required'));
