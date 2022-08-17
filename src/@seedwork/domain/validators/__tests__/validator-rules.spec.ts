@@ -1,5 +1,5 @@
-import ValidationError from "../errors/validation-error";
-import ValidatorRules from "./validator-rules";
+import { ValidationError } from "../../errors/validation-error";
+import ValidatorRules from "../validator-rules";
 
 type Values = {
   value: any;
@@ -29,7 +29,7 @@ function runRule({
   params = [],
 }: Omit<ExpectedRule, "error">) {
   const validator = ValidatorRules.values(value, property);
-  const method = validator[rule];
+  const method:any = validator[rule];
   method.apply(validator, params);
 }
 
