@@ -35,7 +35,6 @@ export class SearchParams {
   }
 
   get page() {
-    console.log('[page::get] _page', this._page)
     return this._page;
   }
 
@@ -47,7 +46,6 @@ export class SearchParams {
     }
 
     this._page = parseInt(_page as any);
-    console.log('[page::set] value', value, '_page', this._page)
   }
 
   get per_page() {
@@ -57,11 +55,11 @@ export class SearchParams {
   private set per_page(value: number) {
     let _per_page = +value;
 
-    if (Number.isNaN(_per_page) || _per_page < 1) {
-      _per_page = 1;
+    if (value as any === true || Number.isNaN(_per_page) || _per_page < 1) {
+      _per_page = 15;
     }
 
-    this._page = parseInt(_per_page as any);
+    this._per_page = parseInt(_per_page as any);
   }
 
   get sort() {
