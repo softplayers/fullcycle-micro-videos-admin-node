@@ -1,9 +1,10 @@
 import Entity from "../entity/entity";
 import NotFoundError from "../errors/not-found.error";
 import UniqueEntityId from "../value-objects/unique-entity-id.vo";
-import { RepositoryInterface, SerchableRepositoryInterface } from "./repository-contracts";
+import { RepositoryInterface, SearchParams, SearchResult, SerchableRepositoryInterface, SortDirection } from "./repository-contracts";
 
 export abstract class InMemoryRepository<E extends Entity<any>> implements RepositoryInterface<E> {
+
 
   items: E[] = [];
 
@@ -47,8 +48,51 @@ export abstract class InMemoryRepository<E extends Entity<any>> implements Repos
 }
 
 
-export abstract class InMemorySearchableRepository<E extends Entity<any>> extends InMemoryRepository<E> implements SerchableRepositoryInterface<E, any, any> {
-  search(props: any): Promise<any> {
-    throw new Error("Method not implemented.");
+export abstract class InMemorySearchableRepository<E extends Entity<any>> 
+    extends InMemoryRepository<E> 
+    implements SerchableRepositoryInterface<E, any, any> {
+
+  sortableFields: string[] = [];
+
+  async search(props: SearchParams): Promise<SearchResult<E>> {
+    const itemsFiltered = await this.applyFilter(this.items, props.filter);
+    const itemsSorted = await this.applySort(itemsFiltered, props.sort, props.sort_dir);
+    const itemsPaginated = await this.applyPaginate(itemsSorted, props.page, props.per_page);
+
+    return new SearchResult({
+      items: itemsPaginated,
+      total: itemsPaginated.length,
+      current_page: props.page,
+      per_page: props.per_page,
+      sort: props.sort,
+      sort_dir: props.sort_dir,
+      filter: props.filter,
+    });
   }
+
+  protected abstract applyFilter(items: E[], filter: string | null): Promise<E[]>;
+
+  protected async applySort(items: E[], sort: string | null, sort_dir: SortDirection | null): Promise<E[]> {
+
+    if (!sort || !this.sortableFields.includes(sort)) {
+      return [...items];
+    }
+
+    const sortedItems = [...items].sort((a, b) => {
+      if (a.props[sort] < b.props[sort]) return -1;
+      if (a.props[sort] > b.props[sort]) return 1;
+      return 0
+    });
+    if (sort_dir === 'desc') {
+      sortedItems.reverse();
+    }
+    return sortedItems;
+  }
+
+  protected async applyPaginate(items: E[], page: SearchParams['page'], per_page: SearchParams['per_page']): Promise<E[]> {
+    const start = (page - 1) * per_page;
+    let limit = start + per_page;
+    return items.slice(start, limit);
+  }
+
 }
