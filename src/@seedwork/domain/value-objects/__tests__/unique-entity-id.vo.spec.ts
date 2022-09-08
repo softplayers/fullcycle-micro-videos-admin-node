@@ -4,7 +4,7 @@ import UniqueEntityId from "../unique-entity-id.vo";
 
 describe("UniqueEntityId Unit tests", () => {
 
-  const validateSpy = jest.spyOn(UniqueEntityId.prototype, "validate");
+  const validateSpy = jest.spyOn(UniqueEntityId.prototype, "validate" as any);
 
   it("should throw error when uuid is invalid", () => {
     expect(() => new UniqueEntityId("fake id")).toThrow(new InvalidUUidError());
