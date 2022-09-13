@@ -1,3 +1,4 @@
 node_modules/
 src/coverage/
 __coverage
+/dist
