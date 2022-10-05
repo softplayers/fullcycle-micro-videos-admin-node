@@ -2,7 +2,7 @@ import {v4, validate} from 'uuid';
 import InvalidUUidError from '../errors/invalid-uuid.error';
 import ValueObject from './value-object';
 
-export default class UniqueEntityId extends ValueObject<string> {
+export class UniqueEntityId extends ValueObject<string> {
 
     constructor(id?: string) {
         super(id || v4());
@@ -17,3 +17,5 @@ export default class UniqueEntityId extends ValueObject<string> {
     }
     
 }
+
+export default UniqueEntityId;
