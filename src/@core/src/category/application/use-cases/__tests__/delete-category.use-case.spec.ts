@@ -24,7 +24,7 @@ describe('DeleteCategoryUseCase unit tests', () => {
 
         repository.items = items;
 
-        await useCase.execute({id: repository.items[0].id});
+        await useCase.execute({ id: repository.items[0].id });
 
         expect(deleteMethod).toHaveBeenCalledTimes(1);
         expect(repository.items).toHaveLength(0);
