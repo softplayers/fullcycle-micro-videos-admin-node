@@ -5,7 +5,7 @@ export default {
     },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-        "^.+\\.(t|j)s$": "ts-jest"
+        "^.+\\.(t|j)s$": "@swc/jest"
     },
     "coverageDirectory": "../coverage",
     moduleFileExtensions: ['js', 'json', 'ts'],
