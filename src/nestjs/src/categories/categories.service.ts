@@ -1,15 +1,23 @@
+import { CreateCategoryUseCase, ListCategoriesUseCase } from '@fc/micro-videos/category/application';
 import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
+
+  constructor(
+    private createUseCase: CreateCategoryUseCase.UseCase,
+    private listUseCase: ListCategoriesUseCase.UseCase,
+  ) { }
+
+
   create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+    return this.createUseCase.execute(createCategoryDto as any);
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  search() {
+    return this.listUseCase.execute({});
   }
 
   findOne(id: number) {
