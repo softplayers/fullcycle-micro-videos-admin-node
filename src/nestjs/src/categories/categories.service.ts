@@ -1,15 +1,16 @@
 import { CreateCategoryUseCase, ListCategoriesUseCase } from '@fc/micro-videos/category/application';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
 
-  constructor(
-    private createUseCase: CreateCategoryUseCase.UseCase,
-    private listUseCase: ListCategoriesUseCase.UseCase,
-  ) { }
+  @Inject()
+  private createUseCase: CreateCategoryUseCase.UseCase;
+
+  @Inject()
+  private listUseCase: ListCategoriesUseCase.UseCase;
 
 
   create(createCategoryDto: CreateCategoryDto) {

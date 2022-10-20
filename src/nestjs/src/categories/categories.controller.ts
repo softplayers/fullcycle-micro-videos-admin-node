@@ -1,41 +1,49 @@
-import { CreateCategoryUseCase, ListCategoriesUseCase } from '@fc/micro-videos/category/application';
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CategoriesService } from './categories.service';
+import { CreateCategoryUseCase, DeleteCategoryUseCase, GetCategoryUseCase, ListCategoriesUseCase, UpdateCategoryUseCase } from '@fc/micro-videos/category/application';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Put, Query } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { SearchCategoryDto } from './dto/search-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(
-    private readonly categoriesService: CategoriesService,
-    private createUseCase: CreateCategoryUseCase.UseCase,
-    private listUseCase: ListCategoriesUseCase.UseCase
-  ) { }
+  @Inject()
+  private createUseCase: CreateCategoryUseCase.UseCase;
+
+  @Inject()
+  private updateUseCase: UpdateCategoryUseCase.UseCase;
+
+  @Inject()
+  private deleteUseCase: DeleteCategoryUseCase.UseCase;
+
+  @Inject()
+  private getUseCase: GetCategoryUseCase.UseCase;
+
+  @Inject()
+  private listUseCase: ListCategoriesUseCase.UseCase;
 
   @Post()
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.createUseCase.execute({ name: 'Teste' });
-    //return this.categoriesService.create(createCategoryDto);
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.createUseCase.execute(createCategoryDto);
   }
 
   @Get()
-  findAll() {
-    return this.listUseCase.execute({});
-    //return this.categoriesService.findAll();
+  search(@Query() searchParams: SearchCategoryDto) {
+    return this.listUseCase.execute(searchParams);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+    return this.getUseCase.execute({id});
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.updateUseCase.execute({id, ...updateCategoryDto});
   }
 
+  @HttpCode(204)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+    return this.deleteUseCase.execute({id});
   }
 }
