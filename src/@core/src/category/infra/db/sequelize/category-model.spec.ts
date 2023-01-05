@@ -1,4 +1,3 @@
-import { assert } from 'console';
 import { DataType, Sequelize } from 'sequelize-typescript';
 import { CategoryModel } from './category-model';
 

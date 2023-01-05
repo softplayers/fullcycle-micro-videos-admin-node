@@ -9,8 +9,8 @@
             "#seedwork/*": [
                 "./@seedwork/*"
             ],
-            "#category*": [
-                "./@category/*"
+            "#category/*": [
+                "./category/*"
             ]
         }
     }
