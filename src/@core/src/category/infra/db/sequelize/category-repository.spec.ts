@@ -61,4 +61,16 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
     expect(entity.toJSON()).toStrictEqual(entityFound.toJSON());
   });
 
+  it('should return all categories', async () => {
+    const entity = new Category({name: 'Movie'});
+    await repository.insert(entity);
+    const entities = await repository.findAll();
+    expect(entities).toHaveLength(1);
+    expect(JSON.stringify(entities)).toBe(JSON.stringify([entity]));
+  })
+
+  it('should search...', () => {
+    
+  })
+
 });
