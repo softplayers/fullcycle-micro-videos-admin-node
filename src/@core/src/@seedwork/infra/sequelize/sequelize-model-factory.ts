@@ -1,7 +1,9 @@
 export class SequelizeModelFactory {
 
-  async create() {
+  constructor(private model, private factoryProps: () => any) { }
 
+  async create(data?: any) {
+    return this.model.create(data ?? this.factoryProps());
   }
 
   make() {
@@ -13,6 +15,6 @@ export class SequelizeModelFactory {
   }
 
   bulkMake() {
-    
+
   }
 }
