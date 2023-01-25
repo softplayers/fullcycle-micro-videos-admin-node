@@ -1,23 +1,10 @@
-import { DataType, Sequelize } from 'sequelize-typescript';
+import { setupSequelize } from '#seedwork/infra/testing/helpers/db';
+import { DataType } from 'sequelize-typescript';
 import { CategoryModel } from './category-model';
 
 describe("CategoryModel Unit Tests", () => {
-  let sequelize: Sequelize;
 
-  beforeAll(() => sequelize = new Sequelize({
-    dialect: 'sqlite',
-    host: ':memory:',
-    logging: false,
-    models: [CategoryModel]
-  }));
-
-  beforeEach(async () => {
-    await sequelize.sync({ force: true });
-  });
-
-  afterAll(async () => {
-    await sequelize.close();
-  });
+  setupSequelize({models: [CategoryModel] });
 
   it("create", async () => {
     const arrenge = { id: "011a2da2-70e3-4a0a-b6fc-42e9ad976963", name: "Teste", is_active: true, created_at: new Date() };

@@ -1,5 +1,6 @@
 import { Category } from "#category/domain";
 import { LoadEntityError, UniqueEntityId } from "#seedwork/domain";
+import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
 import { Sequelize } from "sequelize-typescript";
 import { CategoryModelMapper } from "./category-mapper";
 import { CategoryModel } from "./category-model";
@@ -7,22 +8,7 @@ import { CategorySequelizeRepository } from "./category-repository";
 
 describe("CategoryModelMapper Unit Tests", () => {
 
-    let sequelize: Sequelize;
-  
-    beforeAll(() => sequelize = new Sequelize({
-      dialect: 'sqlite',
-      host: ':memory:',
-      logging: false,
-      models: [CategoryModel]
-    }));
-  
-    beforeEach(async () => {
-      await sequelize.sync({ force: true });
-    });
-  
-    afterAll(async () => {
-      await sequelize.close();
-    });
+    setupSequelize({models: [CategoryModel] });
 
     it('should throw error when category is invalid', () => {
         const model = CategoryModel.build({id: '011a2da2-70e3-4a0a-b6fc-42e9ad976963'});
@@ -54,6 +40,7 @@ describe("CategoryModelMapper Unit Tests", () => {
         const model = CategoryModel.build({id: '011a2da2-70e3-4a0a-b6fc-42e9ad976963'});
         expect(() => CategoryModelMapper.toEntity(model)).toThrow(error);
         expect(spyValidate).toHaveBeenCalled();
+        spyValidate.mockRestore();
     })
 
     it ('should convert a category model to a category entity', () => {
