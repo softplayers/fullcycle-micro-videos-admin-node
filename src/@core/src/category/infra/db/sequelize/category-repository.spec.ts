@@ -6,16 +6,11 @@ import { CategorySequelizeRepository } from './category-repository';
 import _chance from 'chance';
 import { CategoryModelMapper } from './category-mapper';
 
+const chance = _chance();
 describe('CategorySequelizeRepository "Unit" Test', () => {
 
   let repository: CategorySequelizeRepository;
-  let chance: Chance.Chance;
-
   setupSequelize({ models: [CategoryModel] });
-
-  beforeAll(() => {
-    chance = _chance();
-  });
 
   beforeEach(async () => {
     repository = new CategorySequelizeRepository(CategoryModel);
@@ -128,7 +123,7 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
       searchOutput.items
         .reverse()
         .forEach((item, index) => {
-          expect(`${item.name}${index+1}`)
+          expect(`${item.name}${index + 1}`)
         })
     })
 
@@ -141,10 +136,10 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
       }
 
       const categoryProps = [
-        { id: chance.guid({version: 4}), name: "test", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "a", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "TESTE", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "TeSt", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "test", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "TESTE", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "TeSt", ...defaultProps },
       ];
 
       const categories = await CategoryModel.bulkCreate(categoryProps);
@@ -191,21 +186,21 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
       }
 
       const categoryProps = [
-        { id: chance.guid({version: 4}), name: "b", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "a", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "d", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "e", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "c", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "b", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "d", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "e", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "c", ...defaultProps },
       ];
 
       const categories = await CategoryModel.bulkCreate(categoryProps)
 
       const arrange = [
         {
-          params: new CategoryRepository.SearchParams({ 
-            page: 1, 
-            per_page: 2, 
-            sort: 'name' 
+          params: new CategoryRepository.SearchParams({
+            page: 1,
+            per_page: 2,
+            sort: 'name'
           }),
           result: new CategoryRepository.SearchResult({
             items: [
@@ -221,10 +216,10 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
           })
         },
         {
-          params: new CategoryRepository.SearchParams({ 
-            page: 2, 
-            per_page: 2, 
-            sort: 'name' 
+          params: new CategoryRepository.SearchParams({
+            page: 2,
+            per_page: 2,
+            sort: 'name'
           }),
           result: new CategoryRepository.SearchResult({
             items: [
@@ -240,10 +235,10 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
           })
         },
         {
-          params: new CategoryRepository.SearchParams({ 
-            page: 1, 
-            per_page: 2, 
-            sort: 'name', 
+          params: new CategoryRepository.SearchParams({
+            page: 1,
+            per_page: 2,
+            sort: 'name',
             sort_dir: 'desc'
           }),
           result: new CategoryRepository.SearchResult({
@@ -260,10 +255,10 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
           })
         },
         {
-          params: new CategoryRepository.SearchParams({ 
+          params: new CategoryRepository.SearchParams({
             page: 2,
-            per_page: 2, 
-            sort: 'name', 
+            per_page: 2,
+            sort: 'name',
             sort_dir: 'desc'
           }),
           result: new CategoryRepository.SearchResult({
@@ -287,7 +282,7 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
       };
     });
 
-    it("should search using filter, sort and paginate", async () => {
+    describe("should search using filter, sort and paginate", () => {
 
       const defaultProps: Partial<CategoryModel> = {
         description: null,
@@ -296,46 +291,44 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
       }
 
       const categoryProps = [
-        { id: chance.guid({version: 4}), name: "test", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "a", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "TESTE", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "e", ...defaultProps },
-        { id: chance.guid({version: 4}), name: "TeSt", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "test", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "TESTE", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "e", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "TeSt", ...defaultProps },
       ];
-
-      const categories = await CategoryModel.bulkCreate(categoryProps)
 
       const arrange = [
         {
-          params: new CategoryRepository.SearchParams({ 
-            page: 1, 
-            per_page: 2, 
-            sort: 'name', 
-            filter: 'TEST' 
+          search_params: new CategoryRepository.SearchParams({
+            page: 1,
+            per_page: 2,
+            sort: 'name',
+            filter: 'TEST'
           }),
-          result: new CategoryRepository.SearchResult({
+          search_result: new CategoryRepository.SearchResult({
             items: [
-              CategoryModelMapper.toEntity(categories[2]), 
-              CategoryModelMapper.toEntity(categories[4])
+              new Category(categoryProps[2]),
+              new Category(categoryProps[4]),
             ],
             total: 3,
             current_page: 1,
             per_page: 2,
             sort: 'name',
             sort_dir: 'asc',
-            filter: 'TEST' ,
+            filter: 'TEST',
           })
         },
         {
-          params: new CategoryRepository.SearchParams({ 
-            page: 2, 
-            per_page: 2, 
-            sort: 'name', 
-            filter: 'TEST' 
+          search_params: new CategoryRepository.SearchParams({
+            page: 2,
+            per_page: 2,
+            sort: 'name',
+            filter: 'TEST'
           }),
-          result: new CategoryRepository.SearchResult({
+          search_result: new CategoryRepository.SearchResult({
             items: [
-              CategoryModelMapper.toEntity(categories[0])
+              new Category(categoryProps[0]),
             ],
             total: 3,
             current_page: 2,
@@ -346,11 +339,14 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
           })
         }
       ];
+      beforeEach(async () => {
+        await CategoryModel.bulkCreate(categoryProps)
+      })
 
-      for (const i of arrange) {
-        const result = await repository.search(new CategoryRepository.SearchParams(i.params));
-        expect(result.toJSON(true)).toMatchObject(i.result.toJSON(true));
-      };
+      test.each(arrange)('When value is $search_params', async ({ search_params, search_result }) => {
+        const result = await repository.search(new CategoryRepository.SearchParams(search_params));
+        expect(result.toJSON(true)).toMatchObject(search_result.toJSON(true));
+      });
     });
 
   })

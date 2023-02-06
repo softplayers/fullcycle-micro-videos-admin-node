@@ -167,7 +167,7 @@ describe('StubInMemorySearchableRepository Unit Tests', () => {
     });
 
 
-    it("should apply only paginate and sort", async () => {
+    describe("should apply only paginate and sort", () => {
       const items = [
         new StubEntity({ name: "b", price: 5 }),
         new StubEntity({ name: "a", price: 5 }),
@@ -175,7 +175,6 @@ describe('StubInMemorySearchableRepository Unit Tests', () => {
         new StubEntity({ name: "e", price: 5 }),
         new StubEntity({ name: "c", price: 5 }),
       ];
-      repository.items = items;
 
       const arrange = [
         {
@@ -203,7 +202,7 @@ describe('StubInMemorySearchableRepository Unit Tests', () => {
           })
         },
         {
-          params: new SearchParams({ page: 1, per_page: 2, sort: 'name', sort_dir: 'desc'}),
+          params: new SearchParams({ page: 1, per_page: 2, sort: 'name', sort_dir: 'desc' }),
           result: new SearchResult({
             items: [items[3], items[2]],
             total: 5,
@@ -215,7 +214,7 @@ describe('StubInMemorySearchableRepository Unit Tests', () => {
           })
         },
         {
-          params: new SearchParams({ page: 2, per_page: 2, sort: 'name', sort_dir: 'desc'}),
+          params: new SearchParams({ page: 2, per_page: 2, sort: 'name', sort_dir: 'desc' }),
           result: new SearchResult({
             items: [items[4], items[0]],
             total: 5,
@@ -228,10 +227,15 @@ describe('StubInMemorySearchableRepository Unit Tests', () => {
         }
       ];
 
-      for (const i of arrange) {
-        const result = await repository.search(new SearchParams(i.params));
-        expect(result).toStrictEqual(i.result);
-      };
+      beforeEach(() => {
+        repository.items = items;
+      });
+
+
+      test.each(arrange)("When value is %j", async ({ params, result }) => {
+        const r = await repository.search(new SearchParams(params));
+        expect(r).toStrictEqual(result);
+      });
     });
 
 
@@ -256,7 +260,7 @@ describe('StubInMemorySearchableRepository Unit Tests', () => {
             per_page: 2,
             sort: 'name',
             sort_dir: 'asc',
-            filter: 'TEST' ,
+            filter: 'TEST',
           })
         },
         {
