@@ -1,15 +1,15 @@
 import { Category, CategoryRepository } from '#category/domain';
 import { NotFoundError } from '#seedwork/domain';
 import { setupSequelize } from '#seedwork/infra/testing/helpers/db';
-import { CategoryModel } from './category-model';
-import { CategorySequelizeRepository } from './category-repository';
 import _chance from 'chance';
-import { CategoryModelMapper } from './category-mapper';
+import { CategorySequelize } from './category-sequelize';
 
 const chance = _chance();
+const {CategoryModel, CategoryModelMapper, CategoryRepository: CategorySequelizeRepository} = CategorySequelize;
+
 describe('CategorySequelizeRepository "Unit" Test', () => {
 
-  let repository: CategorySequelizeRepository;
+  let repository: CategorySequelize.CategoryRepository;
   setupSequelize({ models: [CategoryModel] });
 
   beforeEach(async () => {
@@ -55,9 +55,45 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
   it('should return all categories', async () => {
     const entity = new Category({ name: 'Movie' });
     await repository.insert(entity);
+
     const entities = await repository.findAll();
     expect(entities).toHaveLength(1);
     expect(JSON.stringify(entities)).toBe(JSON.stringify([entity]));
+  })
+
+  it('should throw error on update when entity is not found', async () => {
+    const entity = new Category({name: 'Movie'});
+    await expect(repository.update(entity)).rejects.toThrow(new NotFoundError(`Entity not found with id '${entity.id}'`));
+  })
+  
+  it('should update an entity', async () => {
+    const entity = new Category({ name: 'Movie' });
+    await repository.insert(entity);
+    
+    entity.update("Movie updated", entity.description);
+    await repository.update(entity);
+
+    let entityFound = await repository.findById(entity.id);
+    expect(entity.toJSON()).toStrictEqual(entityFound.toJSON());
+  })
+
+  it('should throw error on delete when entity is not found', async () => {
+    await expect(repository.delete('fake id')).rejects.toThrow(
+      new NotFoundError(`Entity not found with id 'fake id'`)
+    )
+
+    await expect(repository.delete('011a2da2-70e3-4a0a-b6fc-42e9ad976963')).rejects.toThrow(
+      new NotFoundError(`Entity not found with id '011a2da2-70e3-4a0a-b6fc-42e9ad976963'`)
+    )
+  })
+
+  it('should delete an entity', async () => {
+    const entity = new Category({ name: 'Movie' });
+    await repository.insert(entity);
+
+    await repository.delete(entity.id);
+    const entityFound = await CategoryModel.findByPk(entity.id);
+    expect(entityFound).toBeNull();
   })
 
   describe('search method tests', () => {
@@ -129,7 +165,7 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
 
     it("should apply only paginate and filter", async () => {
 
-      const defaultProps: Partial<CategoryModel> = {
+      const defaultProps: Partial<CategorySequelize.CategoryModel> = {
         description: null,
         is_active: true,
         created_at: new Date(),
@@ -179,7 +215,7 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
 
       expect(repository.sortableFields).toStrictEqual(['name', 'created_at']);
 
-      const defaultProps: Partial<CategoryModel> = {
+      const defaultProps: Partial<CategorySequelize.CategoryModel> = {
         description: null,
         is_active: true,
         created_at: new Date(),
@@ -284,7 +320,7 @@ describe('CategorySequelizeRepository "Unit" Test', () => {
 
     describe("should search using filter, sort and paginate", () => {
 
-      const defaultProps: Partial<CategoryModel> = {
+      const defaultProps: Partial<CategorySequelize.CategoryModel> = {
         description: null,
         is_active: true,
         created_at: new Date(),
